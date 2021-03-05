@@ -19,9 +19,11 @@ package com.amazon.opendistroforelasticsearch.notifications
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.elasticsearch.client.Response
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
+import org.elasticsearch.common.io.stream.InputStreamStreamInput
+import org.elasticsearch.common.io.stream.OutputStreamStreamOutput
+import org.elasticsearch.common.io.stream.StreamInput
+import org.elasticsearch.common.io.stream.Writeable
+import java.io.*
 import java.nio.charset.StandardCharsets
 import kotlin.test.assertEquals
 
@@ -145,5 +147,16 @@ class NotificationsJsonEntity(
         fun setAttachment(attachment: String) = apply { this.attachment = attachment }
 
         fun build() = NotificationsJsonEntity(this)
+    }
+}
+
+internal inline fun <reified Request> recreateObject(writeable: Writeable, block: (StreamInput) -> Request): Request {
+    ByteArrayOutputStream().use { byteArrayOutputStream ->
+        OutputStreamStreamOutput(byteArrayOutputStream).use {
+            writeable.writeTo(it)
+            InputStreamStreamInput(ByteArrayInputStream(byteArrayOutputStream.toByteArray())).use { streamInput ->
+                return block(streamInput)
+            }
+        }
     }
 }

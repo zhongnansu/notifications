@@ -19,14 +19,7 @@ package com.amazon.opendistroforelasticsearch.notifications.util
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.elasticsearch.common.io.stream.StreamInput
-import org.elasticsearch.common.xcontent.DeprecationHandler
-import org.elasticsearch.common.xcontent.NamedXContentRegistry
-import org.elasticsearch.common.xcontent.ToXContent
-import org.elasticsearch.common.xcontent.ToXContentObject
-import org.elasticsearch.common.xcontent.XContentBuilder
-import org.elasticsearch.common.xcontent.XContentParser
-import org.elasticsearch.common.xcontent.XContentParserUtils
-import org.elasticsearch.common.xcontent.XContentType
+import org.elasticsearch.common.xcontent.*
 import org.elasticsearch.rest.RestRequest
 
 internal fun StreamInput.createJsonParser(): XContentParser {
@@ -65,4 +58,9 @@ internal fun XContentBuilder.objectIfNotNull(name: String, xContentObject: ToXCo
         xContentObject.toXContent(this, ToXContent.EMPTY_PARAMS)
     }
     return this
+}
+
+@Suppress("UNCHECKED_CAST")
+internal fun suppressWarningCast(map: MutableMap<String?, Any?>?): Map<String, String> {
+    return map as Map<String, String>
 }
